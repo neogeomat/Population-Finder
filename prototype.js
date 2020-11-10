@@ -88,9 +88,16 @@ function openFile(func) {
             var contents = e.target.result;
             // fileInput.func(contents);
             document.body.removeChild(fileInput);
-            drawnItems = L.geoJSON(JSON.parse(contents), {
+            geoobj = L.geoJSON(JSON.parse(contents), {
                 onEachFeature: onEachFeature
-            }).addTo(map);
+            });
+            geoobj.eachLayer(l => {
+                    console.log(l);
+                    drawnItems.addLayer(l);
+                })
+                // drawnItems = L.geoJSON(JSON.parse(contents), {
+                // onEachFeature: onEachFeature
+                // }).addTo(map);
             $("#resultsTbl").append($("<tr>").append($("<td>City</td><td>Population</td>")));
             drawnItems.getLayers().forEach(layer => getPopn(layer));
         }

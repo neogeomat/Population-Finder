@@ -38,8 +38,6 @@ map.on(L.Draw.Event.CREATED, function(e) {
     drawnItems.addLayer(layer);
 });
 
-
-
 function getPopn(layer) {
     var polygonStr = layer.getLatLngs()[0].map(p => '(' + p.lat + ',' + p.lng + ')').toString();
     $.get(`https://public.opendatasoft.com/api/records/1.0/search/?dataset=worldcitiespop&q=&sort=population&facet=country&geofilter.polygon=${polygonStr}`, function(data) {
@@ -121,4 +119,51 @@ function onEachFeature(feature, layer) {
         getPopn(e.target)
     });
 
+}
+L.easyButton('<img src="leaflet-routing-machine-3.2.12/dist/routing-icon.png"></img><span class="target">&target;</span>', function() {
+    if (routing._map) {
+        map.removeControl(routing);
+        map.off('click', mapClickHandler);
+    } else {
+        // alert('Route Activated');
+        map.addControl(routing);
+        map.on('click', mapClickHandler);
+    }
+}, 'Activate Routing').addTo(map);
+
+let routing = L.Routing.control({
+    // waypoints: [
+    //     L.latLng(57.74, 11.94),
+    //     L.latLng(57.6792, 11.949)
+    // ],
+    geocoder: L.Control.Geocoder.nominatim(),
+    // routeWhileDragging: true
+})
+
+function createButton(label, container) {
+    var btn = L.DomUtil.create('button', '', container);
+    btn.setAttribute('type', 'button');
+    btn.innerHTML = label;
+    return btn;
+}
+
+function mapClickHandler(e) {
+    var container = L.DomUtil.create('div'),
+        startBtn = createButton('Start from this location', container),
+        destBtn = createButton('Go to this location', container);
+
+    L.popup()
+        .setContent(container)
+        .setLatLng(e.latlng)
+        .openOn(map);
+
+    L.DomEvent.on(startBtn, 'click', function() {
+        routing.spliceWaypoints(0, 1, e.latlng);
+        map.closePopup();
+    });
+
+    L.DomEvent.on(destBtn, 'click', function() {
+        routing.spliceWaypoints(routing.getWaypoints().length - 1, 1, e.latlng);
+        map.closePopup();
+    });
 }

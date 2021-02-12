@@ -120,3 +120,7 @@ button {
     padding: 10px;
     margin: 10px auto;
 }
+
+.target {
+    font-size: 1.5em;
+}
